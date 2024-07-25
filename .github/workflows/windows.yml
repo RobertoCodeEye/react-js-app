@@ -24,6 +24,9 @@ jobs:
             $readContent = Get-Content -Path "iris.settings.json"
             Write-Output "Contenido del archivo: $readContent"
 
+            $hash = Get-FileHash -Path ".\iris.settings.json" -Algorithm SHA256
+            Write-Output $hash.Hash
+
             dir
           
         - name: Download IRIS Scanner CLI 
