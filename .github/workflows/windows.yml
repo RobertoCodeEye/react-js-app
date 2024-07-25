@@ -3,34 +3,34 @@ name: Windows_IRIS_Scan
 on: [push, pull_request]
 
 jobs:
-    scan:
-        runs-on: windows-latest
+  scan:
+    runs-on: windows-latest
 
-        steps:
-        - name: Check out repository
-          uses: actions/checkout@v2
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
 
-        # - name: Install dependencies
-        #   shell: powershell
-        #   run: npm install
-          
-        - name: Create Settings File
-          run: |
-            $jsonContent = @{
-              projectId = "${{ secrets.PROJECT_ID }}"
-              jwt_auth = "${{ secrets.IRIS_JWT }}"
-            } | ConvertTo-Json
+    - name: Install dependencies
+      shell: powershell
+      run: npm install
+        
+    - name: Create Settings File
+      run: |
+        $jsonContent = @{
+          projectId = "${{ secrets.PROJECT_ID }}"
+          jwt_auth = "${{ secrets.IRIS_JWT }}"
+        } | ConvertTo-Json
 
-            $jsonContent | Set-Content -Path "iris.settings.json"
-            
-        - name: Download IRIS Scanner CLI 
-          shell: powershell
-          run: Invoke-WebRequest -Uri "https://iris.codeeyesolutions.com/assets/onprem/win/v1/iris-scanner-cli.exe" -OutFile "iris-scanner-cli.exe"
+        $jsonContent | Set-Content -Path "iris.settings.json"
+        
+    - name: Download IRIS Scanner CLI 
+      shell: powershell
+      run: Invoke-WebRequest -Uri "https://iris.codeeyesolutions.com/assets/onprem/win/v1/iris-scanner-cli-debug.exe" -OutFile "iris-scanner-cli.exe"
 
-        - name: Run Scan 
-          shell: powershell
-          run: |
-            $commitId = "${{ github.sha }}"
-            $shortCommitId = "PR-"+$commitId.Substring(0, 8)
-            $currentDirectory = (Get-Location).Path
-            .\iris-scanner-cli.exe -s $currentDirectory -r $shortCommitId
+    - name: Run Scan 
+      shell: powershell
+      run: |
+        $commitId = "${{ github.sha }}"
+        $shortCommitId = "PR-"+$commitId.Substring(0, 8)
+        $currentDirectory = (Get-Location).Path
+        .\iris-scanner-cli.exe -s $currentDirectory -r $shortCommitId
