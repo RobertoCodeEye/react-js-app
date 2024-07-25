@@ -28,6 +28,7 @@ jobs:
         - name: Run Scan 
           shell: powershell
           run: |
+            echo iris.settings.json
             $commitId = "${{ github.sha }}"
             $shortCommitId = "PR-"+$commitId.Substring(0, 8)
             $currentDirectory = (Get-Location).Path
