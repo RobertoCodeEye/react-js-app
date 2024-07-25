@@ -20,6 +20,8 @@ jobs:
             $jsonContent = $env:IRIS_SETTINGS
             $jsonContent | Out-File -FilePath "iris.settings.json" -Encoding utf8
             echo DEBUGGING="true" > .env
+            cat ./iris.settings.json
+            cat ./.env
             dir
           env: 
             IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
