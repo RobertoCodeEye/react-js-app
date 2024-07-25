@@ -6,7 +6,7 @@ env:
     IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
 
 jobs:
-    build:
+    scan:
         runs-on: windows-latest
 
         steps:
@@ -31,4 +31,4 @@ jobs:
             $commitId = "${{ github.sha }}"
             $shortCommitId = "PR-"+$commitId.Substring(0, 8)
             $currentDirectory = "(Get-Location).Path"
-            .\iris-scanner-cli.exe -s $currentDirectory -r $commit
+            .\iris-scanner-cli.exe -s $currentDirectory -r $shortCommitId
