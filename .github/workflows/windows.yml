@@ -1,0 +1,34 @@
+name: Windows_IRIS_Scan
+
+on: [push, pull_request]
+
+env:
+    IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
+
+jobs:
+    build:
+        runs-on: windows-latest
+
+        steps:
+        - name: Check out repository
+          uses: actions/checkout@v2
+
+        - name: Install dependencies
+          shell: powershell
+          run: npm install
+          
+        - name: Create Settings File
+          shell: powershell
+          run: echo $IRIS_SETTINGS > iris.settings.json
+          
+        - name: Download IRIS Scanner CLI 
+          shell: powershell
+          run: Invoke-WebRequest -Uri "https://misitio.com/scanner.exe" -OutFile "scanner.exe"
+
+        - name: Run Scan 
+          shell: powershell
+          run: |
+            $commitId = "${{ github.sha }}"
+            $shortCommitId = "PR-"+$commitId.Substring(0, 8)
+            $currentDirectory = "(Get-Location).Path"
+            .\iris-scanner-cli.exe -s $(currentDirectory) -r $(commit)
