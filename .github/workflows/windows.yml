@@ -2,9 +2,6 @@ name: Windows_IRIS_Scan
 
 on: [push, pull_request]
 
-env:
-    IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
-
 jobs:
     scan:
         runs-on: windows-latest
@@ -19,10 +16,12 @@ jobs:
           
         - name: Create Settings File
           shell: powershell
-          run: | 
-            echo $IRIS_SETTINGS > iris.settings.json
+          run: |
+            echo $env:IRIS_SETTINGS > iris.settings.json
             echo DEBUGGING="true" > .env
             dir
+          env: 
+            IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
