@@ -13,6 +13,7 @@ jobs:
         - name: Read File
           shell: powershell
           run: |
+            echo $IRIS_SETTINGS > iris.settings.json
             $file = Get-ChildItem -Path . -Filter "iris.settings.json" -Recurse
             Get-Content -Path $file.FullName
 
