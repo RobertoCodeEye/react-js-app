@@ -21,8 +21,7 @@ jobs:
           shell: powershell
           run: | 
             echo $IRIS_SETTINGS > iris.settings.json
-            $file = Get-ChildItem -Path . -Filter "iris.settings.json" -Recurse
-            Get-Content -Path $file.FullName | ForEach-Object { Write-Host $_ }
+            Get-Content -Path .\iris.settings.json
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
