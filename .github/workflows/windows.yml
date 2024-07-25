@@ -17,13 +17,12 @@ jobs:
         - name: Create Settings File
           run: |
             $jsonContent = @{
-              projectId: "018cb3a0-8753-4811-aa7d-0aea1c9fc259",
-              jwt_auth: "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImFjY291bnQiOiJkZW1vQWNjb3VudDEiLCJhY2NvdW50SWQiOiJhNDkzNTM2My00OTllLTQ3NzYtOTc0ZS04ZDI5YjgyYmVlMGUiLCJ1c2VySWQiOiJhZG1pbjFEZW1vQWNjb3VudCJ9LCJpYXQiOjE3MjE5MjQyOTUsImV4cCI6MTcyMTk1MzA5NX0.9aT9HvQLHPmh1Zls1pm53RxiiYIiaqfArsgfIFL2PH6zzvdkSMOl6PW7UiXzreFw"
+              "projectId": "018cb3a0-8753-4811-aa7d-0aea1c9fc259",
+              "jwt_auth": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImFjY291bnQiOiJkZW1vQWNjb3VudDEiLCJhY2NvdW50SWQiOiJhNDkzNTM2My00OTllLTQ3NzYtOTc0ZS04ZDI5YjgyYmVlMGUiLCJ1c2VySWQiOiJhZG1pbjFEZW1vQWNjb3VudCJ9LCJpYXQiOjE3MjE5MjQyOTUsImV4cCI6MTcyMTk1MzA5NX0.9aT9HvQLHPmh1Zls1pm53RxiiYIiaqfArsgfIFL2PH6zzvdkSMOl6PW7UiXzreFw"
             } | ConvertTo-Json
 
             $jsonContent | Set-Content -Path "iris.settings.json"
-            
-          
+
         - name: Download IRIS Scanner CLI 
           shell: powershell
           run: Invoke-WebRequest -Uri "https://iris.codeeyesolutions.com/assets/onprem/win/v1/iris-scanner-cli-debug.exe" -OutFile "iris-scanner-cli.exe"
