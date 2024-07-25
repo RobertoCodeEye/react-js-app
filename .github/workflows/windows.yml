@@ -10,13 +10,6 @@ jobs:
         runs-on: windows-latest
 
         steps:
-        - name: Read File
-          shell: powershell
-          run: |
-            echo $IRIS_SETTINGS > iris.settings.json
-            $file = Get-ChildItem -Path . -Filter "iris.settings.json" -Recurse
-            Get-Content -Path $file.FullName
-
         - name: Check out repository
           uses: actions/checkout@v2
 
@@ -26,7 +19,10 @@ jobs:
           
         - name: Create Settings File
           shell: powershell
-          run: echo $IRIS_SETTINGS > iris.settings.json
+          run: | 
+            echo $IRIS_SETTINGS > iris.settings.json
+            $file = Get-ChildItem -Path . -Filter "iris.settings.json" -Recurse
+            Get-Content -Path $file.FullName | ForEach-Object { Write-Host $_ }
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
@@ -35,7 +31,6 @@ jobs:
         - name: Run Scan 
           shell: powershell
           run: |
-            Get-Content -Path "\iris.settings.json"
             $commitId = "${{ github.sha }}"
             $shortCommitId = "PR-"+$commitId.Substring(0, 8)
             $currentDirectory = (Get-Location).Path
