@@ -21,8 +21,8 @@ jobs:
             #echo DEBUGGING="true" > .env
             echo $jsonContent > iris.settings.json
             #cat ./iris.settings.json
-            cat ./.env
-            dir
+            #cat ./.env
+            #dir
           env: 
             IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
           
