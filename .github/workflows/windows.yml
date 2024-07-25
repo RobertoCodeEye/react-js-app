@@ -21,9 +21,7 @@ jobs:
           shell: powershell
           run: | 
             echo $IRIS_SETTINGS > iris.settings.json
-            Get-Content -Path .\iris.settings.json
             echo DEBUGGING="true" > .env
-            Get-Content -Path .\.env
             dir
           
         - name: Download IRIS Scanner CLI 
