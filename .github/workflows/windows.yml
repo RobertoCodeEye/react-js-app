@@ -15,16 +15,14 @@ jobs:
         #   run: npm install
           
         - name: Create Settings File
-          shell: powershell
-          run: |
-            $jsonContent = $env:IRIS_SETTINGS
-            #echo DEBUGGING="true" > .env
-            echo $jsonContent > iris.settings.json
-            #cat ./iris.settings.json
-            #cat ./.env
-            #dir
+          shell: pwsh
           env: 
-            IRIS_SETTINGS: ${{ secrets.IRIS_SETTINGS }}
+            SETTINGS: ${{ secrets.IRIS_SETTINGS }}
+          run: |
+            $jsonContent = $env:SETTINGS
+            echo $jsonContent > iris.settings.json
+            $readContent = Get-Content -Path "iris.settings.json"
+            Write-Output "Contenido del archivo: $readContent"
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
