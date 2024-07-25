@@ -15,20 +15,14 @@ jobs:
         #   run: npm install
           
         - name: Create Settings File
-          shell: pwsh
-          env: 
-            SETTINGS: ${{ secrets.IRIS_SETTINGS }}
           run: |
-            $jsonContent = $env:SETTINGS
-            echo $jsonContent > iris.settings.json
-            echo $jsonContent > text.txt
-            $readContent = Get-Content -Path "text.txt"
-            Write-Output "Contenido del archivo: $readContent"
+            $jsonContent = @{
+              projectId: "018cb3a0-8753-4811-aa7d-0aea1c9fc259",
+              jwt_auth: "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImFjY291bnQiOiJkZW1vQWNjb3VudDEiLCJhY2NvdW50SWQiOiJhNDkzNTM2My00OTllLTQ3NzYtOTc0ZS04ZDI5YjgyYmVlMGUiLCJ1c2VySWQiOiJhZG1pbjFEZW1vQWNjb3VudCJ9LCJpYXQiOjE3MjE5MjQyOTUsImV4cCI6MTcyMTk1MzA5NX0.9aT9HvQLHPmh1Zls1pm53RxiiYIiaqfArsgfIFL2PH6zzvdkSMOl6PW7UiXzreFw"
+            } | ConvertTo-Json
 
-            $hash = Get-FileHash -Path ".\output.json" -Algorithm SHA256
-            Write-Output $hash.Hash
-
-            dir
+            $jsonContent | Set-Content -Path "iris.settings.json"
+            
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
