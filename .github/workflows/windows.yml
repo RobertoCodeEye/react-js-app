@@ -13,15 +13,18 @@ jobs:
         - name: Check out repository
           uses: actions/checkout@v2
 
-        - name: Install dependencies
-          shell: powershell
-          run: npm install
+        # - name: Install dependencies
+        #   shell: powershell
+        #   run: npm install
           
         - name: Create Settings File
           shell: powershell
           run: | 
             echo $IRIS_SETTINGS > iris.settings.json
             Get-Content -Path .\iris.settings.json
+            echo DEBUGGING="true" > .env
+            Get-Content -Path .\.env
+            dir
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
