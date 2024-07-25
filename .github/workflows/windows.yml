@@ -23,6 +23,8 @@ jobs:
             echo $jsonContent > iris.settings.json
             $readContent = Get-Content -Path "iris.settings.json"
             Write-Output "Contenido del archivo: $readContent"
+
+            dir
           
         - name: Download IRIS Scanner CLI 
           shell: powershell
