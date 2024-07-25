@@ -13,7 +13,7 @@ jobs:
         - name: Read File
           shell: powershell
           run: |
-            Get-Content -Path (Get-Location).Path + "\iris.settings.json"
+            Get-Content -Path "(Get-Location).Path"+"\iris.settings.json"
         - name: Check out repository
           uses: actions/checkout@v2
 
