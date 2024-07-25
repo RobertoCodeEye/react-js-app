@@ -21,10 +21,11 @@ jobs:
           run: |
             $jsonContent = $env:SETTINGS
             echo $jsonContent > iris.settings.json
-            $readContent = Get-Content -Path "output.json"
+            echo $jsonContent > text.txt
+            $readContent = Get-Content -Path "text.txt"
             Write-Output "Contenido del archivo: $readContent"
 
-            $hash = Get-FileHash -Path ".\iris.settings.json" -Algorithm SHA256
+            $hash = Get-FileHash -Path ".\output.json" -Algorithm SHA256
             Write-Output $hash.Hash
 
             dir
