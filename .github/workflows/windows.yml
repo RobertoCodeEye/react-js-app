@@ -17,7 +17,8 @@ jobs:
         - name: Create Settings File
           shell: powershell
           run: |
-            echo $env:IRIS_SETTINGS > iris.settings.json
+            $jsonContent = $env:IRIS_SETTINGS
+            $jsonContent | Out-File -FilePath "iris.settings.json" -Encoding utf8
             echo DEBUGGING="true" > .env
             dir
           env: 
