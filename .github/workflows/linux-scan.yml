@@ -1,0 +1,32 @@
+name: Linux_IRIS_Scan
+
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Create Settings File
+        run: |
+            jsonContent=$(jq -n --arg projectId "${{ secrets.PROJECT_ID }}" --arg jwt "${{ secrets.IRIS_JWT }}" \
+                        '{projectId: $projectId, jwt_auth: $jwt}')
+
+            echo $jsonContent > iris.settings.json
+
+      - name: Download IRIS Scanner CLI 
+        run: | 
+          curl -L -o iris-scanner-cli https://iris.codeeyesolutions.com/assets/onprem/v2/iris-scanner-cli
+          chmod +x iris-scanner-cli
+      
+      - name: Run Scan 
+        run: |
+          commitId=$(git rev-parse HEAD)
+          shortCommitId="PR-"${GITHUB_SHA::8}
+          currentDirectory=$PWD
+          ./iris-scanner-cli -s $currentDirectory -r $shortCommitId
