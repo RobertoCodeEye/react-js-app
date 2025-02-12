@@ -43,7 +43,7 @@ jobs:
           # Agregar archivos modificados a la lista
           while IFS= read -r file; do
             FILES_TO_KEEP+=("$file")
-          done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "")
+          done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "algo fallo")
       
           # Incluir archivos específicos que siempre deben conservarse
           EXTRA_FILES=("package.json")
