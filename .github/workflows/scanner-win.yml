@@ -63,6 +63,7 @@ jobs:
 
           # Mostrar el contenido del archivo
           $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '\\', '/' }
+          Write-Host "El contenido de keepFiles variable es: $keepFiles"
           $keepFilesAbsolute = $keepFiles | ForEach-Object { Join-Path -Path $currentDirectory -ChildPath $_ }
           Write-Host "El contenido de keepFilesAbsolute variable es: $keepFilesAbsolute"
 
