@@ -61,10 +61,9 @@ jobs:
 
           # Mostrar el contenido del archivo
           Write-Host "Contenido de keep_files.txt:"
-          $keepFiles = Get-Content keep_files.txt
 
-          $keepFilePath = (Get-Item -Path .\keep_files.txt).FullName
-          Write-Host "La ruta del archivo keep_files.txt es: $keepFilePath"
+          $keepFiles = Get-Content keep_files.txt
+          Write-Host "El copmtenido de keep_files.txt es: $keepFiles"
 
           Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin $keepFiles } | Remove-Item -Force -ErrorAction SilentlyContinue
           
