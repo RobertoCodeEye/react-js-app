@@ -41,7 +41,7 @@ jobs:
           fi
 
           # Validar que no esté vacío
-          if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
+          if [[ -z "$CLEAN_JSON" || "$CLEAN_JSON" == "[]" ]]; then
             echo "No se encontraron archivos modificados."
             exit 1  # Detener el proceso si no hay archivos modificados
           fi
@@ -51,7 +51,7 @@ jobs:
           # Agregar archivos modificados a la lista
           while IFS= read -r file; do
             FILES_TO_KEEP+=("$file")
-          done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "algo fallo")
+          done < <(echo "$CLEAN_JSON" | jq -r '.[]' 2>/dev/null || echo "algo fallo")
       
           # Incluir archivos específicos que siempre deben conservarse
           EXTRA_FILES=("package.json")
