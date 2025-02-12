@@ -30,6 +30,7 @@ jobs:
         run: |
           # Obtener la lista de archivos modificados
           CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
+          echo "$CHANGED_FILES_JSON"
       
           # Validar que no esté vacío
           if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
