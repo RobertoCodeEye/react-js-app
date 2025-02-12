@@ -32,10 +32,14 @@ jobs:
           CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
           echo "Raw JSON"
           echo "$CHANGED_FILES_JSON"
-          echo "Intentando procesarlo con JQ"
-          echo "$CHANGED_FILES_JSON" | jq .
 
-      
+          CLEAN_JSON=$(echo "$CHANGED_FILES_JSON" | sed 's/\\"/"/g' | jq -Rr 'fromjson? // empty')
+
+          if [[ -z "$CLEAN_JSON" ]]; then
+            echo "Error: No se pudieron extraer archivos modificados."
+            exit 1
+          fi
+
           # Validar que no esté vacío
           if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
             echo "No se encontraron archivos modificados."
