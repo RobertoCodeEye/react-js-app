@@ -27,14 +27,16 @@ jobs:
 
           Write-Host "$CHANGED_FILES_JSON"
 
-          if ([string]::IsNullOrWhiteSpace($CHANGED_FILES_JSON)) {
+          $CLEAN_JSON_STRING = $CHANGED_FILES_JSON -replace '\\\"', '"' -replace '\\', '/'
+
+          if ([string]::IsNullOrWhiteSpace($CLEAN_JSON_STRING)) {
             Write-Host "Error: No se encontraron archivos modificados o JSON inválido."
             exit 1
           }
           
           try {
             # Intentar convertir la cadena JSON en un array
-            $CLEAN_JSON = $CHANGED_FILES_JSON | ConvertFrom-Json
+            $CLEAN_JSON = $CLEAN_JSON_STRING | ConvertFrom-Json
           } catch {
             Write-Host "Error al parsear JSON: $_"
             exit 1
