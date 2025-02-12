@@ -19,19 +19,10 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           json: true
-
-      # - name: Checkout prod branch
-      #   uses: actions/checkout@v4
-      #   with:
-      #     ref: prod
-      #     path: prod_branch
-
       - name: Keep only modified files and composer.json
         run: |
           # Obtener la lista de archivos modificados
           CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
-          echo "Raw JSON"
-          echo "$CHANGED_FILES_JSON"
 
           CLEAN_JSON=$(echo "$CHANGED_FILES_JSON" | sed 's/\\"/"/g' | jq -Rr 'fromjson? // empty')
 
@@ -80,3 +71,6 @@ jobs:
           # Mostrar archivos finales conservados
           echo "Archivos conservados:"
           find "$(pwd)" -type f || echo "No se conservaron archivos."
+      - name: Download Scanner
+        run: |
+          

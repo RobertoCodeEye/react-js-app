@@ -1,0 +1,55 @@
+name: Windows SAST Analysis
+
+on:
+  pull_request:
+    branches:
+      - prod
+
+jobs:
+  filter-files:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          json: true
+
+      - name: Keep only modified files and composer.json
+        shell: pwsh
+        run: |
+          $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
+          $CLEAN_JSON = $CHANGED_FILES_JSON -replace '\\\"', '""' | ConvertFrom-Json -ErrorAction SilentlyContinue
+
+          if ($null -eq $CLEAN_JSON -or $CLEAN_JSON.Count -eq 0) {
+            Write-Host "No se encontraron archivos modificados."
+            exit 1
+          }
+
+          $FILES_TO_KEEP = @($CLEAN_JSON)
+          $EXTRA_FILES = @("package.json")
+
+          foreach ($FILE in $EXTRA_FILES) {
+            if (Test-Path $FILE) {
+              $FILES_TO_KEEP += $FILE
+            }
+          }
+
+          # Guardar la lista de archivos a conservar
+          Set-Content -Path keep_files.txt -Value ($FILES_TO_KEEP -join "`n")
+          Get-Content keep_files.txt
+
+          # Eliminar todos los archivos que no están en keep_files.txt
+          Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
+          
+          # Eliminar la carpeta .git
+          Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
+
+          # Mostrar archivos finales conservados
+          Write-Host "Archivos conservados:"
+          Get-ChildItem -Path . -Recurse -File
