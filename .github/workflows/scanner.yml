@@ -50,10 +50,11 @@ jobs:
           for FILE in "${EXTRA_FILES[@]}"; do
             if [ -f "$FILE" ]; then
               FILES_TO_KEEP+=("$FILE")
-              echo "File Added:\t"
-              echo "$FILE\n"
             fi
           done
+
+          echo "Archivos a mantener\n"
+          echo "$FILES_TO_KEEP"
       
           # Crear un archivo temporal con la lista de archivos a conservar
           printf "%s\n" "${FILES_TO_KEEP[@]}" > keep_files.txt
