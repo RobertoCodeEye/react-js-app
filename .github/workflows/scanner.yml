@@ -26,59 +26,42 @@ jobs:
           ref: prod
           path: prod_branch
 
-      - name: Keep only necessary files
+      - name: Keep only modified files and composer.json
         run: |
-          # Obtener archivos modificados
+          # Obtener la lista de archivos modificados
           CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
-
+      
           # Validar que no esté vacío
           if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
             echo "No se encontraron archivos modificados."
             exit 1  # Detener el proceso si no hay archivos modificados
           fi
-
+      
           FILES_TO_KEEP=()
-          
-          # Leer archivos modificados y agregarlos a la lista de archivos a conservar
+      
+          # Agregar archivos modificados a la lista
           while IFS= read -r file; do
             FILES_TO_KEEP+=("$file")
           done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "")
-
-          # Agregar archivos extra que siempre deben conservarse
+      
+          # Incluir archivos específicos que siempre deben conservarse
           EXTRA_FILES=("composer.json")
           for FILE in "${EXTRA_FILES[@]}"; do
             if [ -f "$FILE" ]; then
               FILES_TO_KEEP+=("$FILE")
             fi
           done
-
+      
           # Crear un archivo temporal con la lista de archivos a conservar
           printf "%s\n" "${FILES_TO_KEEP[@]}" > keep_files.txt
-
-          # Eliminar todos los archivos/directorios excepto los que deben conservarse
+      
+          # Eliminar todo excepto los archivos que deben conservarse
           find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || true
           find . -type d -empty -delete  # Eliminar directorios vacíos
-
-          # Imprimir la lista final de archivos conservados con sus rutas completas
+      
+          # Eliminar la carpeta .git
+          rm -rf .git
+      
+          # Mostrar archivos finales conservados
           echo "Archivos conservados:"
           find "$(pwd)" -type f || echo "No se conservaron archivos."
-
-          #   - name: Upload filtered files
-          #     uses: actions/upload-artifact@v4
-          #     with:
-          #       name: filtered-files
-          #       path: filtered_files/
-
-#   sast-analysis:
-#     needs: filter-files
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Download filtered files
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: filtered-files
-#           path: analysis-files
-
-#       - name: Run SAST Scanner
-#         run: |
-#           echo "Archivos disponibles para análisis
