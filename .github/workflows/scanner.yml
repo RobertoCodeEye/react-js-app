@@ -26,34 +26,48 @@ jobs:
           ref: prod
           path: prod_branch
 
-      - name: Filter and copy modified files
+      - name: Keep only necessary files
         run: |
-          mkdir -p filtered_files
-          FILES=$(jq -r '.[]' <<< '${{ steps.changed-files.outputs.all_changed_files }}')
+          # Obtener archivos modificados
+          CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
 
-          for FILE in $FILES; do
-            mkdir -p "filtered_files/$(dirname "$FILE")"
-            cp "$FILE" "filtered_files/$FILE"
-          done
+          # Validar que no esté vacío
+          if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
+            echo "No se encontraron archivos modificados."
+            exit 1  # Detener el proceso si no hay archivos modificados
+          fi
 
-          # Incluir archivos específicos, aunque no hayan cambiado
+          FILES_TO_KEEP=()
+          
+          # Leer archivos modificados y agregarlos a la lista de archivos a conservar
+          while IFS= read -r file; do
+            FILES_TO_KEEP+=("$file")
+          done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "")
+
+          # Agregar archivos extra que siempre deben conservarse
           EXTRA_FILES=("composer.json")
           for FILE in "${EXTRA_FILES[@]}"; do
             if [ -f "$FILE" ]; then
-              mkdir -p "filtered_files/$(dirname "$FILE")"
-              cp "$FILE" "filtered_files/$FILE"
+              FILES_TO_KEEP+=("$FILE")
             fi
           done
 
-          # Imprimir rutas completas de los archivos copiados
-          echo "Archivos seleccionados:"
-          find "$(pwd)/filtered_files" -type f
+          # Crear un archivo temporal con la lista de archivos a conservar
+          printf "%s\n" "${FILES_TO_KEEP[@]}" > keep_files.txt
 
-    #   - name: Upload filtered files
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: filtered-files
-    #       path: filtered_files/
+          # Eliminar todos los archivos/directorios excepto los que deben conservarse
+          find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || true
+          find . -type d -empty -delete  # Eliminar directorios vacíos
+
+          # Imprimir la lista final de archivos conservados con sus rutas completas
+          echo "Archivos conservados:"
+          find "$(pwd)" -type f || echo "No se conservaron archivos."
+
+          #   - name: Upload filtered files
+          #     uses: actions/upload-artifact@v4
+          #     with:
+          #       name: filtered-files
+          #       path: filtered_files/
 
 #   sast-analysis:
 #     needs: filter-files
