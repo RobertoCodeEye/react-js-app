@@ -46,10 +46,12 @@ jobs:
           done < <(echo "$CHANGED_FILES_JSON" | jq -r '.[]' 2>/dev/null || echo "")
       
           # Incluir archivos específicos que siempre deben conservarse
-          EXTRA_FILES=("composer.json")
+          EXTRA_FILES=("package.json")
           for FILE in "${EXTRA_FILES[@]}"; do
             if [ -f "$FILE" ]; then
               FILES_TO_KEEP+=("$FILE")
+              echo "File Added:\t"
+              echo "$FILE\n"
             fi
           done
       
