@@ -62,16 +62,13 @@ jobs:
           $currentDirectory = Get-Location
 
           # Mostrar el contenido del archivo
-          $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '\\', '/' }
+          $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '//', '/' }
           Write-Host "El contenido de keepFiles variable es: $keepFiles"
           $keepFilesAbsolute = $keepFiles | ForEach-Object { Join-Path -Path $currentDirectory -ChildPath $_ }
           Write-Host "El contenido de keepFilesAbsolute variable es: $keepFilesAbsolute"
 
           # Obtener los archivos en el directorio actual y subdirectorios
           $files = Get-ChildItem -Path . -Recurse -File
-          # Imprimir las rutas de los archivos encontrados (para depuración)
-          Write-Host "Archivos encontrados:"
-          $files.FullName
 
           # Filtrar y eliminar los archivos que no están en la lista de mantener
           $files | Where-Object { $_.FullName -notin $keepFilesAbsolute } | Remove-Item -Force -ErrorAction SilentlyContinue
