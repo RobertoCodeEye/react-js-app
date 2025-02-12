@@ -24,7 +24,7 @@ jobs:
         shell: pwsh
         run: |
           $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
-          $CLEAN_JSON = $CHANGED_FILES_JSON -replace '\\\"', '""' | ConvertFrom-Json -ErrorAction SilentlyContinue
+          # $CLEAN_JSON = $CHANGED_FILES_JSON -replace '\\\"', '""' | ConvertFrom-Json -ErrorAction SilentlyContinue
 
           if ([string]::IsNullOrWhiteSpace($CHANGED_FILES_JSON)) {
             Write-Host "Error: No se encontraron archivos modificados o JSON inválido."
