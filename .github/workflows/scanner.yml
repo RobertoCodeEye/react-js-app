@@ -55,9 +55,10 @@ jobs:
       
           # Crear un archivo temporal con la lista de archivos a conservar
           printf "%s\n" "${FILES_TO_KEEP[@]}" > keep_files.txt
+          grep -vFf keep_files.txt
       
           # Eliminar todo excepto los archivos que deben conservarse
-          find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || true
+          find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || echo "\nNo se elimino nada"
           # find . -type d -empty -delete  # Eliminar directorios vacíos
       
           # Eliminar la carpeta .git
