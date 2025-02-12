@@ -25,14 +25,9 @@ jobs:
         run: |
           $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
 
-          Write-Host "$CHANGED_FILES_JSON"
+          Write-Host "Raw JSON Output: $CHANGED_FILES_JSON"
 
           $CLEAN_JSON_STRING = $CHANGED_FILES_JSON -replace '\\\"', '"' -replace '\\', '/'
-
-          if ([string]::IsNullOrWhiteSpace($CLEAN_JSON_STRING)) {
-            Write-Host "Error: No se encontraron archivos modificados o JSON inválido."
-            exit 1
-          }
           
           try {
             # Intentar convertir la cadena JSON en un array
@@ -56,12 +51,19 @@ jobs:
             }
           }
 
-          # Guardar la lista de archivos a conservar
-          Set-Content -Path keep_files.txt -Value ($FILES_TO_KEEP -join "`n")
+          # Si $FILES_TO_KEEP está vacío, crear un archivo vacío para evitar el error
+          if ($FILES_TO_KEEP.Count -eq 0) {
+            New-Item -Path keep_files.txt -ItemType File -Force
+          } else {
+            # Guardar la lista de archivos a conservar
+            Set-Content -Path keep_files.txt -Value ($FILES_TO_KEEP -join "`n")
+          }
+
+          # Mostrar el contenido del archivo
+          Write-Host "Contenido de keep_files.txt:"
           Get-Content keep_files.txt
 
-          # Eliminar todos los archivos que no están en keep_files.txt
-          Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
+           Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
           
           # Eliminar la carpeta .git
           Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
