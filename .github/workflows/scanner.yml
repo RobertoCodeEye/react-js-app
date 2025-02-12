@@ -20,11 +20,11 @@ jobs:
         with:
           json: true
 
-      - name: Checkout prod branch
-        uses: actions/checkout@v4
-        with:
-          ref: prod
-          path: prod_branch
+      # - name: Checkout prod branch
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: prod
+      #     path: prod_branch
 
       - name: Keep only modified files and composer.json
         run: |
@@ -58,7 +58,7 @@ jobs:
       
           # Eliminar todo excepto los archivos que deben conservarse
           find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || true
-          find . -type d -empty -delete  # Eliminar directorios vacíos
+          # find . -type d -empty -delete  # Eliminar directorios vacíos
       
           # Eliminar la carpeta .git
           rm -rf .git
