@@ -59,11 +59,13 @@ jobs:
             Set-Content -Path keep_files.txt -Value ($FILES_TO_KEEP -join "`n")
           }
 
+          $currentDirectory = Get-Location
+
           # Mostrar el contenido del archivo
           Write-Host "Contenido de keep_files.txt:"
-
-          $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '/', '\\' }
-          Write-Host "El contenido de keep_files variable es: $keepFiles"
+          $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '\\', '/' }
+          $keepFilesAbsolute = $keepFiles | ForEach-Object { Join-Path -Path $currentDirectory -ChildPath $_ }
+          Write-Host "El contenido de keep_files variable es: $keepFilesAbsolute"
 
           # Obtener los archivos en el directorio actual y subdirectorios
           $files = Get-ChildItem -Path . -Recurse -File
@@ -72,7 +74,7 @@ jobs:
           $files.FullName
 
           # Filtrar y eliminar los archivos que no están en la lista de mantener
-          $files | Where-Object { $_.FullName -notin $keepFiles } | Remove-Item -Force -ErrorAction SilentlyContinue
+          $files | Where-Object { $_.FullName -notin $keepFilesAbsolute } | Remove-Item -Force -ErrorAction SilentlyContinue
           
           # # Eliminar la carpeta .git
           # Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
