@@ -26,7 +26,20 @@ jobs:
           $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
           $CLEAN_JSON = $CHANGED_FILES_JSON -replace '\\\"', '""' | ConvertFrom-Json -ErrorAction SilentlyContinue
 
-          if ($null -eq $CLEAN_JSON -or $CLEAN_JSON.Count -eq 0) {
+          if ([string]::IsNullOrWhiteSpace($CHANGED_FILES_JSON)) {
+            Write-Host "Error: No se encontraron archivos modificados o JSON inválido."
+            exit 1
+          }
+          
+          try {
+            # Intentar convertir la cadena JSON en un array
+            $CLEAN_JSON = $CHANGED_FILES_JSON | ConvertFrom-Json
+          } catch {
+            Write-Host "Error al parsear JSON: $_"
+            exit 1
+          }
+
+          if ($CLEAN_JSON -is [array] -and $CLEAN_JSON.Count -eq 0) {
             Write-Host "No se encontraron archivos modificados."
             exit 1
           }
