@@ -1,0 +1,70 @@
+name: SAST Analysis
+
+on:
+  pull_request:
+    branches:
+      - prod
+
+jobs:
+  filter-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          json: true
+
+      - name: Checkout prod branch
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+          path: prod_branch
+
+      - name: Filter and copy modified files
+        run: |
+          mkdir -p filtered_files
+          FILES=$(jq -r '.[]' <<< '${{ steps.changed-files.outputs.all_changed_files }}')
+
+          for FILE in $FILES; do
+            mkdir -p "filtered_files/$(dirname "$FILE")"
+            cp "$FILE" "filtered_files/$FILE"
+          done
+
+          # Incluir archivos específicos, aunque no hayan cambiado
+          EXTRA_FILES=("composer.json")
+          for FILE in "${EXTRA_FILES[@]}"; do
+            if [ -f "$FILE" ]; then
+              mkdir -p "filtered_files/$(dirname "$FILE")"
+              cp "$FILE" "filtered_files/$FILE"
+            fi
+          done
+
+          # Imprimir rutas completas de los archivos copiados
+          echo "Archivos seleccionados:"
+          find "$(pwd)/filtered_files" -type f
+
+    #   - name: Upload filtered files
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: filtered-files
+    #       path: filtered_files/
+
+#   sast-analysis:
+#     needs: filter-files
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download filtered files
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: filtered-files
+#           path: analysis-files
+
+#       - name: Run SAST Scanner
+#         run: |
+#           echo "Archivos disponibles para análisis
