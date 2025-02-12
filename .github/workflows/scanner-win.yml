@@ -63,7 +63,7 @@ jobs:
           Write-Host "Contenido de keep_files.txt:"
           Get-Content keep_files.txt
 
-           Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
           
           # Eliminar la carpeta .git
           Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
