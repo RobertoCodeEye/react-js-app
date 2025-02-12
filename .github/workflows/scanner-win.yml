@@ -61,12 +61,12 @@ jobs:
 
           # Mostrar el contenido del archivo
           Write-Host "Contenido de keep_files.txt:"
-          Get-Content keep_files.txt
+          $keepFiles = Get-Content keep_files.txt
 
           $keepFilePath = (Get-Item -Path .\keep_files.txt).FullName
           Write-Host "La ruta del archivo keep_files.txt es: $keepFilePath"
 
-          Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin (Get-Content keep_files.txt) } | Remove-Item -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -notin $keepFiles } | Remove-Item -Force -ErrorAction SilentlyContinue
           
           # Eliminar la carpeta .git
           Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
