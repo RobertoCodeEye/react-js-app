@@ -30,7 +30,11 @@ jobs:
         run: |
           # Obtener la lista de archivos modificados
           CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
+          echo "Raw JSON"
           echo "$CHANGED_FILES_JSON"
+          echo "Intentando procesarlo con JQ"
+          echo "$CHANGED_FILES_JSON" | jq .
+
       
           # Validar que no esté vacío
           if [[ -z "$CHANGED_FILES_JSON" || "$CHANGED_FILES_JSON" == "[]" ]]; then
