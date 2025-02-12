@@ -1,0 +1,81 @@
+name: Windows SAST Analysis
+
+on:
+  pull_request:
+    branches:
+      - prod
+
+jobs:
+  filter-files:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          json: true
+
+      - name: Keep only modified files and composer.json
+        shell: pwsh
+        run: |
+          $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
+
+          Write-Host "Raw JSON Output: $CHANGED_FILES_JSON"
+
+          $CLEAN_JSON_STRING = $CHANGED_FILES_JSON -replace '\\\"', '"' -replace '\\', '/'
+          
+          try {
+            # Intentar convertir la cadena JSON en un array
+            $CLEAN_JSON = $CLEAN_JSON_STRING | ConvertFrom-Json
+          } catch {
+            Write-Host "Error al parsear JSON: $_"
+            exit 1
+          }
+
+          if ($CLEAN_JSON -is [array] -and $CLEAN_JSON.Count -eq 0) {
+            Write-Host "No se encontraron archivos modificados."
+            exit 1
+          }
+
+          $FILES_TO_KEEP = @($CLEAN_JSON)
+          $EXTRA_FILES = @("package.json")
+
+          foreach ($FILE in $EXTRA_FILES) {
+            if (Test-Path $FILE) {
+              $FILES_TO_KEEP += $FILE
+            }
+          }
+
+          # Si $FILES_TO_KEEP está vacío, crear un archivo vacío para evitar el error
+          if ($FILES_TO_KEEP.Count -eq 0) {
+            New-Item -Path keep_files.txt -ItemType File -Force
+          } else {
+            # Guardar la lista de archivos a conservar
+            Set-Content -Path keep_files.txt -Value ($FILES_TO_KEEP -join "`n")
+          }
+
+          $currentDirectory = Get-Location
+
+          # Mostrar el contenido del archivo
+          $keepFiles = (Get-Content keep_files.txt) | ForEach-Object { $_ -replace '//', '/' }
+          Write-Host "El contenido de keepFiles variable es: $keepFiles"
+          $keepFilesAbsolute = $keepFiles | ForEach-Object { Join-Path -Path $currentDirectory -ChildPath $_ }
+          Write-Host "El contenido de keepFilesAbsolute variable es: $keepFilesAbsolute"
+
+          # Obtener los archivos en el directorio actual y subdirectorios
+          $files = Get-ChildItem -Path . -Recurse -File
+
+          # Filtrar y eliminar los archivos que no están en la lista de mantener
+          $files | Where-Object { $_.FullName -notin $keepFilesAbsolute } | Remove-Item -Force -ErrorAction SilentlyContinue
+          
+          # # Eliminar la carpeta .git
+          # Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
+
+          # Mostrar archivos finales conservados
+          Write-Host "Archivos conservados:"
+          Get-ChildItem -Path . -Recurse -File

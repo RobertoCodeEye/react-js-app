@@ -1,9 +1,29 @@
 name: SAST Analysis
 
 on:
-  pull_request:
-    branches:
-      - prod
+#   pull_request:
+#     branches:
+#       - prod
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+      tags:
+        description: 'Test scenario tags'
+        required: false
+        type: boolean
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: true
+
 
 jobs:
   filter-files:
@@ -19,52 +39,58 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           json: true
-
-      - name: Checkout prod branch
-        uses: actions/checkout@v4
-        with:
-          ref: prod
-          path: prod_branch
-
-      - name: Filter and copy modified files
+      - name: Keep only modified files and composer.json
         run: |
-          mkdir -p filtered_files
-          FILES=$(jq -r '.[]' <<< '${{ steps.changed-files.outputs.all_changed_files }}')
+          # Obtener la lista de archivos modificados
+          CHANGED_FILES_JSON='${{ steps.changed-files.outputs.all_changed_files }}'
 
-          for FILE in $FILES; do
-            mkdir -p "filtered_files/$(dirname "$FILE")"
-            cp "$FILE" "filtered_files/$FILE"
-          done
+          CLEAN_JSON=$(echo "$CHANGED_FILES_JSON" | sed 's/\\"/"/g' | jq -Rr 'fromjson? // empty')
 
-          # Incluir archivos específicos, aunque no hayan cambiado
-          EXTRA_FILES=("composer.json")
+          if [[ -z "$CLEAN_JSON" ]]; then
+            echo "Error: No se pudieron extraer archivos modificados."
+            exit 1
+          fi
+
+          # Validar que no esté vacío
+          if [[ -z "$CLEAN_JSON" || "$CLEAN_JSON" == "[]" ]]; then
+            echo "No se encontraron archivos modificados."
+            exit 1  # Detener el proceso si no hay archivos modificados
+          fi
+      
+          FILES_TO_KEEP=()
+      
+          # Agregar archivos modificados a la lista
+          while IFS= read -r file; do
+            FILES_TO_KEEP+=("$file")
+          done < <(echo "$CLEAN_JSON" | jq -r '.[]' 2>/dev/null || echo "algo fallo")
+      
+          # Incluir archivos específicos que siempre deben conservarse
+          EXTRA_FILES=("package.json")
           for FILE in "${EXTRA_FILES[@]}"; do
             if [ -f "$FILE" ]; then
-              mkdir -p "filtered_files/$(dirname "$FILE")"
-              cp "$FILE" "filtered_files/$FILE"
+              FILES_TO_KEEP+=("$FILE")
             fi
           done
 
-          # Imprimir rutas completas de los archivos copiados
-          echo "Archivos seleccionados:"
-          find "$(pwd)/filtered_files" -type f
+          echo "Archivos a mantener\n"
+          echo "$FILES_TO_KEEP"
+      
+          # Crear un archivo temporal con la lista de archivos a conservar
+          printf "%s\n" "${FILES_TO_KEEP[@]}" > keep_files.txt
 
-    #   - name: Upload filtered files
-    #     uses: actions/upload-artifact@v4
-    #     with:
-    #       name: filtered-files
-    #       path: filtered_files/
-
-#   sast-analysis:
-#     needs: filter-files
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Download filtered files
-#         uses: actions/download-artifact@v4
-#         with:
-#           name: filtered-files
-#           path: analysis-files
-
-#       - name: Run SAST Scanner
-#         run: |
-#           echo "Archivos disponibles para análisis
+          echo "\nLeyendo archivo\n"
+          cat keep_files.txt
+      
+          # Eliminar todo excepto los archivos que deben conservarse
+          find . -type f -not -path "./.git/*" -print | grep -vFf keep_files.txt | xargs rm -f || echo "\nNo se elimino nada"
+          # find . -type d -empty -delete  # Eliminar directorios vacíos
+      
+          # Eliminar la carpeta .git
+          rm -rf .git
+      
+          # Mostrar archivos finales conservados
+          echo "Archivos conservados:"
+          find "$(pwd)" -type f || echo "No se conservaron archivos."
+      - name: Download Scanner
+        run: |
+          
