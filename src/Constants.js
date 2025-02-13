@@ -5,6 +5,7 @@ class Constants extends Component {
   static backendRESTUrlBase = process.env.BACKEND_REST_URL_BASE || "http://localhost:8080/rest/";
   static DB_PASSWORD = "MyVulnerablePassword";
   static DB_HOST = "172.188.99";
+  static DB_PORT = "3306";
   // The below URLs are the google cloud instance mentioned in the README. Changing this to the localhost deployment of Javulna
   // static backendUrlBase = "http://35.204.241.43:31337/";
   // static backendRESTUrlBase = "http://35.204.241.43:31337/rest/";
