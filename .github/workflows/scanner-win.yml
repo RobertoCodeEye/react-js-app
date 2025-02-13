@@ -76,7 +76,6 @@ jobs:
         shell: powershell
         run: |
           npm install
-          rmdir /s /q node_modules
       - name: Create Settings File
         run: |
           $jsonContent = @{
