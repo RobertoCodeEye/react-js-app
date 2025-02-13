@@ -20,7 +20,7 @@ jobs:
         with:
           json: true
 
-      - name: Keep only modified files and composer.json
+      - name: Keep only modified files and dependencies files
         shell: pwsh
         run: |
           $CHANGED_FILES_JSON = '${{ steps.changed-files.outputs.all_changed_files }}'
@@ -72,16 +72,11 @@ jobs:
 
           # Filtrar y eliminar los archivos que no están en la lista de mantener
           $files | Where-Object { $_.FullName -notin $keepFilesAbsolute } | Remove-Item -Force -ErrorAction SilentlyContinue
-          
-          # # Eliminar la carpeta .git
-          # Remove-Item -Recurse -Force .git -ErrorAction SilentlyContinue
-
-          # Mostrar archivos finales conservados
-          Write-Host "Archivos conservados:"
-          Get-ChildItem -Path . -Recurse -File
       - name: Install dependencies
         shell: powershell
-        run: npm install
+        run: |
+          npm install
+          rmdir /s /q node_modules
       - name: Create Settings File
         run: |
           $jsonContent = @{
