@@ -92,4 +92,4 @@ jobs:
         run: |
           $shortCommitId = "PR-"+${{ github.event.pull_request.number }}
           $currentDirectory = (Get-Location).Path
-          .\iris-scanner-cli.exe -s $currentDirectory -r $shortCommitId -m "sca"
+          .\iris-scanner-cli.exe -s $currentDirectory -r $shortCommitId
