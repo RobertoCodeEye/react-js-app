@@ -3,7 +3,7 @@ import { Component } from 'react';
 class Constants extends Component {
   static backendUrlBase = process.env.BACKEND_URL_BASE || "http://localhost:8080/";
   static backendRESTUrlBase = process.env.BACKEND_REST_URL_BASE || "http://localhost:8080/rest/";
-  static PASSWORD = "MyVulnerablePaxssword0";
+  static PASSWORD = "MyVulnerablePaxssworjd0";
   static HOST = "172.188.99";
   static PORT = "3306";
   // The below URLs are the google cloud instance mentioned in the README. Changing this to the localhost deployment of Javulna
