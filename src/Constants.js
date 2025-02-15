@@ -8,7 +8,7 @@ class Constants extends Component {
   static PORT = "3306";
   // The below URLs are the google cloud instance mentioned in the README. Changing this to the localhost deployment of Javulna
   static backendUrlBase = "http://35.204.241.43:31337/";
-  // static backendRESTUrlBase = "http://35.204.241.43:31337/rest/";
+  static backendRESTUrlBase = "http://35.204.241.43:31337/rest/";
 }
 
 export default Constants;
